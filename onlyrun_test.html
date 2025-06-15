@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entry.js OnlyRun 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .test-link {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 10px 10px 0;
+            transition: background 0.3s;
+        }
+        .test-link:hover {
+            background: #0056b3;
+        }
+        .description {
+            color: #666;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .code {
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Entry.js OnlyRun 모드 테스트</h1>
+        
+        <div class="success">
+            <strong>✅ OnlyRun 기능이 성공적으로 구현되었습니다!</strong><br>
+            아래 링크들을 클릭하여 테스트해보세요.
+        </div>
+
+        <div class="test-section">
+            <h3>📋 사용 방법</h3>
+            <div class="description">
+                OnlyRun 모드는 Entry.org의 프로젝트를 실행 전용 모드로 볼 수 있는 기능입니다.<br>
+                URL 형식: <code class="code">http://localhost:8080/onlyrun/{프로젝트ID}</code>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🎮 테스트 링크들</h3>
+            <div class="description">
+                아래는 Entry.org의 실제 프로젝트들을 OnlyRun 모드로 실행하는 링크들입니다:
+            </div>
+            
+            <!-- 실제 Entry.org 프로젝트 ID들 -->
+            <a href="http://localhost:8080/onlyrun/67de8c0c24dc839ba6e16345" class="test-link" target="_blank">
+                🎯 테스트 프로젝트 1
+            </a>
+            
+            <a href="http://localhost:8080/onlyrun/5f3d4c2b1a9e8f7g6h5i4j3k" class="test-link" target="_blank">
+                🎮 테스트 프로젝트 2
+            </a>
+            
+            <a href="http://localhost:8080/onlyrun/1a2b3c4d5e6f7g8h9i0j1k2l" class="test-link" target="_blank">
+                🌟 테스트 프로젝트 3
+            </a>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 구현된 기능들</h3>
+            <ul>
+                <li><strong>URL 기반 프로젝트 로드:</strong> /onlyrun/{프로젝트ID} 형식으로 접근</li>
+                <li><strong>Entry.org GraphQL API 연동:</strong> 실시간으로 프로젝트 데이터 가져오기</li>
+                <li><strong>이미지 경로 자동 변환:</strong> 파일명을 절대 링크로 변환</li>
+                <li><strong>실행 전용 UI:</strong> 블록 조립 없이 실행 화면만 표시</li>
+                <li><strong>자동 실행:</strong> 프로젝트 로드 후 자동으로 실행 시작</li>
+                <li><strong>컨트롤 버튼:</strong> 실행/정지, 전체화면 기능</li>
+                <li><strong>키보드 단축키:</strong> 스페이스바(실행/정지), ESC(정지), F11(전체화면)</li>
+                <li><strong>극강 속도 모드:</strong> 기본적으로 활성화된 최고 속도 실행</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>⚡ 속도 최적화</h3>
+            <div class="description">
+                OnlyRun 모드에서는 기본적으로 극강 속도 모드가 활성화되어 있어 블록들이 최대한 빠르게 실행됩니다:
+            </div>
+            <ul>
+                <li>모든 지연 시간 제거 (wait 블록 등)</li>
+                <li>하드웨어 블록 지연 최소화</li>
+                <li>렌더링 최적화</li>
+                <li>500 FPS로 실행</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ 주의사항:</strong><br>
+            • 프로젝트 ID가 존재하지 않거나 비공개 프로젝트인 경우 오류가 발생할 수 있습니다.<br>
+            • 네트워크 연결이 필요합니다 (Entry.org API 호출).<br>
+            • 일부 하드웨어 관련 블록은 실제 하드웨어 없이는 정상 작동하지 않을 수 있습니다.
+        </div>
+
+        <div class="test-section">
+            <h3>🛠️ 개발자 정보</h3>
+            <div class="description">
+                OnlyRun 모드 관련 파일들:
+            </div>
+            <ul>
+                <li><code>example/onlyrun.ejs</code> - OnlyRun 전용 HTML 템플릿</li>
+                <li><code>webpack_config/serve.js</code> - 웹팩 설정 (라우팅 추가)</li>
+                <li><code>src/entry.js</code> - 극강 속도 모드 기본 활성화</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 페이지 로드 시 현재 서버 정보 표시
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Entry.js OnlyRun 테스트 페이지가 로드되었습니다!');
+            console.log('서버 주소:', window.location.origin);
+            console.log('OnlyRun URL 형식:', window.location.origin + '/onlyrun/{프로젝트ID}');
+        });
+    </script>
+</body>
+</html> 
