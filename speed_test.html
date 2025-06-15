@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entry.js 스피드 최적화 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-panel {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #45a049;
+        }
+        .status {
+            background: #e7f3ff;
+            padding: 10px;
+            border-left: 4px solid #2196F3;
+            margin: 10px 0;
+        }
+        #console-output {
+            background: #2d2d2d;
+            color: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 Entry.js 스피드 최적화 테스트</h1>
+    
+    <div class="test-panel">
+        <h2>📊 현재 상태</h2>
+        <div id="status-display" class="status">
+            로딩 중...
+        </div>
+        
+        <h3>🎮 제어 버튼</h3>
+        <button class="button" onclick="checkStatus()">상태 확인</button>
+        <button class="button" onclick="enableSpeed()">스피드 최적화 ON</button>
+        <button class="button" onclick="disableSpeed()">스피드 최적화 OFF</button>
+        <button class="button" onclick="enableMaxSpeed()">최고속도 모드</button>
+        <button class="button" onclick="enableHyperSpeed()" style="background: #ff4444;">🚀 극강속도 모드</button>
+        <button class="button" onclick="testSpeed()">속도 테스트</button>
+        <button class="button" onclick="performanceTest()">극강 성능 테스트</button>
+        <button class="button" onclick="clearConsole()">콘솔 지우기</button>
+    </div>
+
+    <div class="test-panel">
+        <h2>📝 콘솔 출력</h2>
+        <div id="console-output"></div>
+    </div>
+
+    <script>
+        // 콘솔 출력 함수
+        function log(message, type = 'info') {
+            const output = document.getElementById('console-output');
+            const time = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            output.innerHTML += `[${time}] ${prefix} ${message}\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // Entry.js 로딩 확인
+        function waitForEntry() {
+            if (typeof Entry === 'undefined') {
+                log('Entry.js 로딩 중... 잠시 기다려주세요.', 'info');
+                setTimeout(waitForEntry, 500);
+                return;
+            }
+            log('Entry.js 로딩 완료!', 'success');
+            checkStatus();
+        }
+
+        // 상태 확인
+        function checkStatus() {
+            try {
+                if (typeof Entry === 'undefined') {
+                    log('Entry.js가 아직 로딩되지 않았습니다.', 'error');
+                    return;
+                }
+
+                const status = Entry.getSpeedOptimizationStatus();
+                log(`스피드 최적화: ${status.speedOptimized}`, 'info');
+                log(`최고속도 모드: ${status.maxSpeedMode}`, 'info');
+                log(`극강속도 모드: ${status.hyperSpeedMode}`, 'info');
+                log(`터보 모드: ${status.isTurbo}`, 'info');
+                log(`FPS: ${status.FPS || 'N/A'}`, 'info');
+                log(`TickTime: ${status.tickTime || 'N/A'}ms`, 'info');
+                
+                document.getElementById('status-display').innerHTML = `
+                    <strong>스피드 최적화:</strong> ${status.speedOptimized ? '✅ 활성화' : '❌ 비활성화'}<br>
+                    <strong>최고속도 모드:</strong> ${status.maxSpeedMode ? '✅ 활성화' : '❌ 비활성화'}<br>
+                    <strong>극강속도 모드:</strong> ${status.hyperSpeedMode ? '🚀 활성화' : '❌ 비활성화'}<br>
+                    <strong>터보 모드:</strong> ${status.isTurbo ? '✅ 활성화' : '❌ 비활성화'}<br>
+                    <strong>FPS:</strong> ${status.FPS || 'N/A'}<br>
+                    <strong>TickTime:</strong> ${status.tickTime || 'N/A'}ms
+                `;
+            } catch (error) {
+                log(`상태 확인 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // 스피드 최적화 활성화
+        function enableSpeed() {
+            try {
+                Entry.enableSpeedOptimization();
+                log('스피드 최적화가 활성화되었습니다!', 'success');
+                checkStatus();
+            } catch (error) {
+                log(`활성화 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // 스피드 최적화 비활성화
+        function disableSpeed() {
+            try {
+                Entry.disableSpeedOptimization();
+                log('스피드 최적화가 비활성화되었습니다.', 'info');
+                checkStatus();
+            } catch (error) {
+                log(`비활성화 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // 최고속도 모드
+        function enableMaxSpeed() {
+            try {
+                Entry.enableMaxSpeedMode();
+                log('최고속도 모드가 활성화되었습니다!', 'success');
+                checkStatus();
+            } catch (error) {
+                log(`최고속도 모드 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // 🚀 극강속도 모드
+        function enableHyperSpeed() {
+            try {
+                Entry.enableHyperSpeedMode();
+                log('🚀🚀🚀 극강속도 모드가 활성화되었습니다! 🚀🚀🚀', 'success');
+                checkStatus();
+            } catch (error) {
+                log(`극강속도 모드 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // 속도 테스트
+        function testSpeed() {
+            try {
+                log('=== 속도 테스트 시작 ===', 'info');
+                
+                // Entry.Utils.sleep 테스트
+                const start = performance.now();
+                Entry.Utils.sleep(1000).then(() => {
+                    const end = performance.now();
+                    const elapsed = end - start;
+                    log(`sleep(1000ms) 실제 시간: ${elapsed.toFixed(2)}ms`, elapsed < 10 ? 'success' : 'info');
+                });
+
+                // TimeWaitManager 테스트
+                const testStart = performance.now();
+                Entry.TimeWaitManager.add('test', () => {
+                    const testEnd = performance.now();
+                    const testElapsed = testEnd - testStart;
+                    log(`TimeWaitManager 실제 시간: ${testElapsed.toFixed(2)}ms`, testElapsed < 10 ? 'success' : 'info');
+                }, 500);
+
+                log('테스트 실행 중...', 'info');
+            } catch (error) {
+                log(`테스트 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // 극강 성능 테스트
+        function performanceTest() {
+            try {
+                log('=== 🚀 극강 성능 테스트 시작 ===', 'info');
+                
+                const iterations = 10000;
+                const start = performance.now();
+                
+                // 대량 테스트
+                for (let i = 0; i < iterations; i++) {
+                    Entry.TimeWaitManager.add(`test_${i}`, () => {}, 100);
+                }
+                
+                const end = performance.now();
+                const elapsed = end - start;
+                const perOp = elapsed / iterations;
+                
+                log(`${iterations}회 반복 테스트:`, 'info');
+                log(`총 시간: ${elapsed.toFixed(2)}ms`, 'info');
+                log(`평균 시간: ${perOp.toFixed(4)}ms/operation`, perOp < 0.1 ? 'success' : 'info');
+                log(`초당 처리량: ${(1000/perOp).toFixed(0)} ops/sec`, 'success');
+            } catch (error) {
+                log(`극강 성능 테스트 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // 콘솔 지우기
+        function clearConsole() {
+            document.getElementById('console-output').innerHTML = '';
+        }
+
+        // 페이지 로딩 시 Entry.js 확인
+        window.addEventListener('load', () => {
+            log('페이지 로딩 완료. Entry.js 확인 중...', 'info');
+            waitForEntry();
+        });
+
+        // 에러 캐치
+        window.addEventListener('error', (event) => {
+            log(`JavaScript 에러: ${event.message}`, 'error');
+        });
+    </script>
+
+    <!-- Entry.js 로딩 -->
+    <script src="/dist/entry.js"></script>
+</body>
+</html>
