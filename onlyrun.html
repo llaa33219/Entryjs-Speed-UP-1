@@ -1,727 +1,423 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
-    <title>Entry.js OnlyRun - 극강 속도 모드</title>
-    
+    <title>Entry.js OnlyRun Mode</title>
+    <link href="dist/entry.css" rel="stylesheet" />
     <style>
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            background: #000;
+            font-family: 'Noto Sans KR', sans-serif;
+            overflow: hidden;
         }
         
-        body, html {
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: white;
-        }
-        
-        .container {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .header {
-            margin-bottom: 30px;
-            animation: fadeInDown 1s ease-out;
-        }
-        
-        .logo {
-            font-size: 48px;
-            margin-bottom: 10px;
-            animation: bounce 2s infinite;
-        }
-        
-        .title {
-            font-size: 36px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .subtitle {
-            font-size: 18px;
-            opacity: 0.9;
-        }
-        
-        .speed-badge {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-            animation: pulse 2s infinite;
-        }
-        
-        .input-section {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            padding: 25px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255,255,255,0.2);
-            animation: fadeInUp 1s ease-out 0.3s both;
-        }
-        
-        .input-group {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        input[type="text"] {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            width: 280px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-        
-        input[type="text"]:focus {
-            outline: none;
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-        }
-        
-        .btn {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
+            z-index: 9999;
             color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
         }
         
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
         }
         
-        .btn.load {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
-            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
-        .btn.demo {
-            background: linear-gradient(45deg, #ff9800, #f57c00);
-            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+        .loading-text {
+            font-size: 18px;
+            margin-bottom: 10px;
         }
         
-        .btn.playing {
-            background: linear-gradient(45deg, #ff5722, #d84315);
-            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);
-        }
-        
-        .btn.stop {
-            background: linear-gradient(45deg, #f44336, #d32f2f);
-            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
-        }
-        
-        .canvas-container {
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            margin: 20px 0;
-            display: none;
-            animation: fadeInUp 1s ease-out 0.6s both;
-        }
-        
-        #canvas {
-            border: 3px solid #333;
-            border-radius: 15px;
-            display: block;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .controls {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .project-info {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 1px solid rgba(255,255,255,0.2);
-            display: none;
-            animation: fadeInUp 1s ease-out 0.9s both;
-        }
-        
-        .info-item {
-            margin: 8px 0;
-            font-size: 16px;
-        }
-        
-        .status {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
-            padding: 12px 20px;
-            border-radius: 25px;
+        .loading-detail {
             font-size: 14px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .version-info {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.6);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 12px;
             opacity: 0.8;
         }
         
-        /* 애니메이션 */
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
+        #error {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+            text-align: center;
+            padding: 20px;
         }
         
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        .error-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
         }
         
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
+        .error-title {
+            font-size: 24px;
+            margin-bottom: 10px;
         }
         
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.9; }
+        .error-message {
+            font-size: 16px;
+            opacity: 0.9;
+            max-width: 600px;
+            line-height: 1.5;
         }
         
-        /* 반응형 */
-        @media (max-width: 768px) {
-            .title { font-size: 28px; }
-            .logo { font-size: 36px; }
-            input[type="text"] { width: 220px; }
-            .input-group { flex-direction: column; }
-            .controls { flex-direction: column; align-items: center; }
+        #workspace {
+            width: 100vw;
+            height: 100vh;
+            display: none;
+        }
+        
+        /* Entry.js 스테이지를 전체 화면으로 */
+        .entryStageWrapper {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        .entryStage {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        /* 불필요한 UI 요소들 숨기기 */
+        .entryPlayground,
+        .entryPropertyPanel,
+        .entryMenubar,
+        .entryToolbar {
+            display: none !important;
         }
     </style>
 </head>
 <body>
-    <div class="speed-badge">⚡ 극강 속도 모드</div>
+    <!-- 로딩 화면 -->
+    <div id="loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">프로젝트를 불러오는 중...</div>
+        <div class="loading-detail">잠시만 기다려주세요</div>
+    </div>
     
-    <div class="container">
-        <div class="header">
-            <div class="logo">🚀</div>
-            <div class="title">Entry.js OnlyRun</div>
-            <div class="subtitle">극강 속도 최적화 실행 전용 모드</div>
-        </div>
-        
-        <div class="input-section">
-            <div class="input-group">
-                <input type="text" id="projectId" placeholder="프로젝트 ID 입력 (예: 67de8c0c24dc839ba6e16345)" />
-                <button class="btn load" onclick="loadProject()">📂 프로젝트 로드</button>
-                <button class="btn demo" onclick="loadDemo()">🎮 데모 실행</button>
-            </div>
-        </div>
-        
-        <div class="project-info" id="projectInfo">
-            <div class="info-item"><strong>📋 프로젝트:</strong> <span id="projectName">-</span></div>
-            <div class="info-item"><strong>🆔 ID:</strong> <span id="projectIdDisplay">-</span></div>
-            <div class="info-item"><strong>⚡ 상태:</strong> <span id="projectStatus">대기 중</span></div>
-            <div class="info-item"><strong>🚀 속도:</strong> <span style="color: #4CAF50;">극강 모드 활성화</span></div>
-        </div>
-        
-        <div class="canvas-container" id="canvasContainer">
-            <canvas id="canvas" width="480" height="360"></canvas>
-            
-            <div class="controls">
-                <button class="btn" id="playBtn" onclick="togglePlay()">▶️ 실행</button>
-                <button class="btn stop" onclick="stopExecution()">⏹️ 정지</button>
-                <button class="btn" onclick="resetProject()">🔄 리셋</button>
-                <button class="btn" onclick="toggleFullscreen()">🔍 전체화면</button>
-            </div>
+    <!-- 에러 화면 -->
+    <div id="error">
+        <div class="error-icon">⚠️</div>
+        <div class="error-title">프로젝트를 불러올 수 없습니다</div>
+        <div class="error-message" id="error-message">
+            올바른 프로젝트 ID를 확인해주세요.<br>
+            사용법: /onlyrun/프로젝트ID
         </div>
     </div>
     
-    <div class="status" id="status">Entry.js OnlyRun 준비 완료</div>
-    <div class="version-info">v2.0 - 통합 최종 버전</div>
+    <!-- Entry.js 워크스페이스 -->
+    <div id="workspace"></div>
+
+    <!-- Entry.js 의존성 라이브러리들 -->
+    <script src="extern/lang/ko.js"></script>
+    <script src="https://playentry.org/lib/PreloadJS/lib/preloadjs-0.6.0.min.js"></script>
+    <script src="https://playentry.org/lib/EaselJS/lib/easeljs-0.8.0.min.js"></script>
+    <script src="https://playentry.org/lib/SoundJS/lib/soundjs-0.6.0.min.js"></script>
+    <script src="https://playentry.org/lib/SoundJS/lib/flashaudioplugin-0.6.0.min.js"></script>
+    <script src="https://playentry.org/lib/lodash/dist/lodash.min.js"></script>
+    <script src="https://playentry.org/lib/jquery/jquery.min.js"></script>
+    <script src="https://playentry.org/lib/jquery-ui/ui/minified/jquery-ui.min.js"></script>
+    <script src="https://playentry.org/lib/velocity/velocity.min.js"></script>
+    <script src="extern/util/static.js"></script>
+    <script src="dist/entry.js"></script>
 
     <script>
-        /**
-         * Entry.js OnlyRun - 통합 최종 버전
-         * 모든 기능을 하나로 통합한 깔끔한 실행 전용 모드
-         */
-        class EntryOnlyRun {
+        // OnlyRun 모드 구현
+        class OnlyRunMode {
             constructor() {
-                this.canvas = document.getElementById('canvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.isPlaying = false;
-                this.animationId = null;
-                this.frame = 0;
-                this.projectData = null;
-                this.startTime = Date.now();
-                
-                this.init();
+                this.projectId = null;
+                this.loadingEl = document.getElementById('loading');
+                this.errorEl = document.getElementById('error');
+                this.workspaceEl = document.getElementById('workspace');
+                this.errorMessageEl = document.getElementById('error-message');
             }
             
-            init() {
-                console.log('🚀 Entry.js OnlyRun v2.0 시작!');
-                this.updateStatus('Entry.js OnlyRun 초기화 완료');
-                
-                // URL에서 프로젝트 ID 자동 추출
-                const urlProjectId = this.extractProjectIdFromURL();
-                if (urlProjectId) {
-                    document.getElementById('projectId').value = urlProjectId;
-                    setTimeout(() => this.loadProject(urlProjectId), 500);
-                }
-                
-                // 키보드 이벤트 등록
-                this.setupKeyboardEvents();
-                
-                console.log('✅ 초기화 완료 - 극강 속도 모드 활성화');
+            // URL에서 프로젝트 ID 추출
+            extractProjectId() {
+                const path = window.location.pathname;
+                const match = path.match(/\/onlyrun\/([a-zA-Z0-9]+)/);
+                return match ? match[1] : null;
             }
             
-            extractProjectIdFromURL() {
-                const hash = window.location.hash;
-                const search = window.location.search;
-                const pathname = window.location.pathname;
-                
-                // 다양한 URL 형식 지원
-                let match;
-                
-                // #/onlyrun/프로젝트ID
-                match = hash.match(/#\/onlyrun\/([a-zA-Z0-9]+)/);
-                if (match) return match[1];
-                
-                // /onlyrun/프로젝트ID
-                match = pathname.match(/\/onlyrun\/([a-zA-Z0-9]+)/);
-                if (match) return match[1];
-                
-                // ?id=프로젝트ID
-                const params = new URLSearchParams(search);
-                const id = params.get('id');
-                if (id) return id;
-                
-                return null;
+            // 로딩 상태 업데이트
+            updateLoadingText(text, detail = '') {
+                document.querySelector('.loading-text').textContent = text;
+                document.querySelector('.loading-detail').textContent = detail;
             }
             
-            setupKeyboardEvents() {
-                document.addEventListener('keydown', (e) => {
-                    switch(e.code) {
-                        case 'Space':
-                            e.preventDefault();
-                            this.togglePlay();
-                            break;
-                        case 'Escape':
-                            this.stopExecution();
-                            break;
-                        case 'F11':
-                            e.preventDefault();
-                            this.toggleFullscreen();
-                            break;
-                        case 'KeyR':
-                            if (e.ctrlKey || e.metaKey) {
-                                e.preventDefault();
-                                this.resetProject();
+            // 에러 표시
+            showError(message) {
+                this.errorMessageEl.innerHTML = message;
+                this.loadingEl.style.display = 'none';
+                this.errorEl.style.display = 'flex';
+            }
+            
+            // 이미지 파일명을 절대 URL로 변환
+            convertImageUrl(filename) {
+                if (!filename || filename.length < 4) return filename;
+                
+                const prefix1 = filename.substring(0, 2);
+                const prefix2 = filename.substring(2, 4);
+                const extension = filename.split('.').pop() || 'png';
+                
+                return `https://playentry.org/uploads/${prefix1}/${prefix2}/image/${filename}`;
+            }
+            
+            // 프로젝트 데이터에서 이미지 URL 변환
+            processProjectData(projectData) {
+                if (!projectData || !projectData.objects) return projectData;
+                
+                // 오브젝트들의 이미지 파일명을 절대 URL로 변환
+                projectData.objects.forEach(obj => {
+                    if (obj.sprite && obj.sprite.pictures) {
+                        obj.sprite.pictures.forEach(picture => {
+                            if (picture.filename) {
+                                picture.fileurl = this.convertImageUrl(picture.filename);
                             }
-                            break;
+                        });
+                    }
+                    if (obj.sprite && obj.sprite.sounds) {
+                        obj.sprite.sounds.forEach(sound => {
+                            if (sound.filename) {
+                                sound.fileurl = this.convertImageUrl(sound.filename);
+                            }
+                        });
                     }
                 });
+                
+                return projectData;
             }
             
-            updateStatus(message) {
-                document.getElementById('status').textContent = message;
-                console.log('📊 Status:', message);
-            }
-            
-            showProjectInfo(data) {
-                document.getElementById('projectName').textContent = data.name || '알 수 없음';
-                document.getElementById('projectIdDisplay').textContent = data.id || '알 수 없음';
-                document.getElementById('projectStatus').textContent = '로드 완료';
-                document.getElementById('projectInfo').style.display = 'block';
-            }
-            
-            showCanvas() {
-                document.getElementById('canvasContainer').style.display = 'block';
-            }
-            
-            async loadProject(projectId) {
-                if (!projectId) {
-                    projectId = document.getElementById('projectId').value.trim();
-                }
-                
-                if (!projectId) {
-                    alert('프로젝트 ID를 입력해주세요.');
-                    return;
-                }
-                
-                this.updateStatus('프로젝트 로딩 중...');
-                
-                try {
-                    // 실제 API 호출 시도
-                    const projectData = await this.fetchProjectData(projectId);
-                    this.projectData = projectData;
-                    console.log('✅ 실제 프로젝트 데이터 로드 성공:', projectData);
-                } catch (error) {
-                    console.warn('⚠️ 실제 API 호출 실패, 샘플 데이터 사용:', error);
-                    
-                    // 샘플 데이터 생성
-                    this.projectData = {
-                        id: projectId,
-                        name: `Entry 프로젝트 ${projectId.substring(0, 8)}...`,
-                        user: { nickname: 'OnlyRun 사용자' },
-                        objects: [],
-                        scenes: [],
-                        variables: [],
-                        speed: 60
-                    };
-                }
-                
-                this.showProjectInfo(this.projectData);
-                this.showCanvas();
-                this.drawWelcomeScreen();
-                this.updateStatus('프로젝트 로드 완료 - 실행 준비됨');
-            }
-            
-            async fetchProjectData(projectId) {
-                const apiUrls = [
-                    'http://localhost:3001/api/playentry/graphql/SELECT_PROJECT',
-                    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://playentry.org/graphql/SELECT_PROJECT')
-                ];
-                
+            // Entry.org GraphQL API로 프로젝트 데이터 가져오기
+            async fetchProject(projectId) {
                 const query = `
                     query SELECT_PROJECT($id: ID! $groupId: ID) {
                         project(id: $id, groupId: $groupId) {
-                            id name
-                            user { id nickname }
-                            objects variables messages functions tables scenes speed
+                            id
+                            name
+                            user {
+                                id
+                                nickname
+                                profileImage {
+                                    id
+                                    name
+                                    filename
+                                    imageType
+                                    dimension {
+                                        width
+                                        height
+                                    }
+                                }
+                            }
+                            thumb
+                            isopen
+                            category
+                            created
+                            updated
+                            visit
+                            likeCnt
+                            comment
+                            description
+                            speed
+                            objects
+                            variables
+                            messages
+                            functions
+                            tables
+                            scenes
+                            expansionBlocks
+                            aiUtilizeBlocks
                         }
                     }
                 `;
                 
-                for (const url of apiUrls) {
-                    try {
-                        const response = await fetch(url, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                query: query,
-                                variables: { id: projectId }
-                            })
-                        });
-                        
-                        if (response.ok) {
-                            const result = await response.json();
-                            if (result.data && result.data.project) {
-                                return result.data.project;
-                            }
-                        }
-                    } catch (error) {
-                        console.warn(`API 호출 실패 (${url}):`, error);
-                        continue;
-                    }
-                }
-                
-                throw new Error('모든 API 호출 실패');
-            }
-            
-            drawWelcomeScreen() {
-                const { canvas, ctx } = this;
-                
-                // 배경 그라데이션
-                const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-                gradient.addColorStop(0, '#e8f5e8');
-                gradient.addColorStop(0.5, '#c8e6c9');
-                gradient.addColorStop(1, '#a5d6a7');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // 제목
-                ctx.fillStyle = '#1b5e20';
-                ctx.font = 'bold 28px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('🚀 Entry.js OnlyRun', canvas.width / 2, 80);
-                
-                // 프로젝트 정보
-                ctx.font = '20px Arial';
-                ctx.fillStyle = '#2e7d32';
-                ctx.fillText(this.projectData.name, canvas.width / 2, 120);
-                
-                // 극강 속도 표시
-                ctx.font = 'bold 18px Arial';
-                ctx.fillStyle = '#4caf50';
-                ctx.fillText('⚡ 극강 속도 모드 활성화', canvas.width / 2, 160);
-                
-                // 상태 정보
-                ctx.font = '16px Arial';
-                ctx.fillStyle = '#388e3c';
-                ctx.fillText('✅ 모든 지연 제거 완료', canvas.width / 2, 190);
-                ctx.fillText('✅ 메모리 누수 방지 활성화', canvas.width / 2, 210);
-                ctx.fillText('✅ 하드웨어 블록 최적화 완료', canvas.width / 2, 230);
-                
-                // 실행 안내
-                ctx.font = '14px Arial';
-                ctx.fillStyle = '#666';
-                ctx.fillText('실행 버튼을 클릭하거나 스페이스바를 눌러 시작하세요', canvas.width / 2, 280);
-                ctx.fillText('단축키: Space(실행/일시정지), ESC(정지), F11(전체화면), Ctrl+R(리셋)', canvas.width / 2, 300);
-                
-                // 장식 요소
-                this.drawDecorations();
-            }
-            
-            drawDecorations() {
-                const { canvas, ctx } = this;
-                
-                // 코너 원들
-                const cornerStyle = 'rgba(76, 175, 80, 0.3)';
-                ctx.fillStyle = cornerStyle;
-                
-                [
-                    [40, 40], [canvas.width - 40, 40],
-                    [40, canvas.height - 40], [canvas.width - 40, canvas.height - 40]
-                ].forEach(([x, y]) => {
-                    ctx.beginPath();
-                    ctx.arc(x, y, 25, 0, Math.PI * 2);
-                    ctx.fill();
+                const response = await fetch('https://playentry.org/graphql/SELECT_PROJECT', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': '*/*',
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        variables: { id: projectId }
+                    })
                 });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.errors) {
+                    throw new Error(result.errors[0].message);
+                }
+                
+                if (!result.data || !result.data.project) {
+                    throw new Error('프로젝트를 찾을 수 없습니다.');
+                }
+                
+                return result.data.project;
             }
             
-            startExecution() {
-                this.isPlaying = true;
-                this.frame = 0;
-                this.startTime = Date.now();
-                this.animate();
-                
-                // UI 업데이트
-                const playBtn = document.getElementById('playBtn');
-                playBtn.textContent = '⏸️ 일시정지';
-                playBtn.classList.add('playing');
-                
-                document.getElementById('projectStatus').textContent = '실행 중';
-                this.updateStatus('극강 속도로 실행 중...');
-                
-                console.log('🚀 실행 시작 - 극강 속도 모드');
-            }
+                         // Entry.js 초기화
+             initEntry() {
+                 return new Promise((resolve, reject) => {
+                     try {
+                         const initOption = {
+                             type: 'workspace', // 워크스페이스 모드로 초기화 후 UI 숨김
+                             libDir: '',
+                             entryDir: '',
+                             textCodingEnable: false,
+                             hardwareEnable: false,
+                         };
+                         
+                         Entry.init(this.workspaceEl, initOption);
+                         
+                         // UI 요소들 숨기기
+                         setTimeout(() => {
+                             this.hideUIElements();
+                             resolve();
+                         }, 1500);
+                         
+                     } catch (error) {
+                         reject(error);
+                     }
+                 });
+             }
+             
+             // UI 요소들 숨기기
+             hideUIElements() {
+                 const elementsToHide = [
+                     '.entryPlayground',
+                     '.entryPropertyPanel', 
+                     '.entryMenubar',
+                     '.entryToolbar',
+                     '.entryCanvasWrapper .entryCanvasWorkspace',
+                     '.entryWorkspaceBoard',
+                     '.entryBlocklyWorkspace'
+                 ];
+                 
+                 elementsToHide.forEach(selector => {
+                     const elements = document.querySelectorAll(selector);
+                     elements.forEach(el => {
+                         el.style.display = 'none';
+                     });
+                 });
+                 
+                 // 스테이지만 전체 화면으로 표시
+                 const stage = document.querySelector('.entryCanvasStage');
+                 if (stage) {
+                     stage.style.position = 'fixed';
+                     stage.style.top = '0';
+                     stage.style.left = '0';
+                     stage.style.width = '100vw';
+                     stage.style.height = '100vh';
+                     stage.style.zIndex = '1000';
+                 }
+             }
             
-            animate() {
-                if (!this.isPlaying) return;
-                
-                const { canvas, ctx } = this;
-                const elapsed = (Date.now() - this.startTime) / 1000;
-                
-                // 배경 지우기
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // 동적 배경
-                const time = this.frame * 0.03;
-                const gradient = ctx.createRadialGradient(
-                    canvas.width / 2, canvas.height / 2, 0,
-                    canvas.width / 2, canvas.height / 2, 250
-                );
-                gradient.addColorStop(0, `hsl(${(time * 30) % 360}, 70%, 85%)`);
-                gradient.addColorStop(0.7, `hsl(${(time * 30 + 120) % 360}, 60%, 70%)`);
-                gradient.addColorStop(1, `hsl(${(time * 30 + 240) % 360}, 50%, 60%)`);
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // 움직이는 원들 (극강 속도 시뮬레이션)
-                const particleCount = 15;
-                for (let i = 0; i < particleCount; i++) {
-                    const angle = time * 2 + i * (Math.PI * 2 / particleCount);
-                    const radius = 60 + Math.sin(time * 3 + i) * 40;
-                    const x = canvas.width / 2 + Math.cos(angle) * radius;
-                    const y = canvas.height / 2 + Math.sin(angle) * radius;
-                    const size = 12 + Math.sin(time * 4 + i) * 6;
+            // 프로젝트 로드 및 실행
+            async loadAndRunProject(projectData) {
+                try {
+                    // 프로젝트 데이터 처리
+                    const processedData = this.processProjectData(projectData);
                     
-                    // 원 그리기
-                    ctx.beginPath();
-                    ctx.arc(x, y, size, 0, Math.PI * 2);
-                    ctx.fillStyle = `hsl(${(time * 80 + i * 24) % 360}, 85%, 65%)`;
-                    ctx.fill();
+                    // Entry.js에 프로젝트 로드
+                    Entry.loadProject(processedData);
                     
-                    // 글로우 효과
-                    ctx.shadowColor = ctx.fillStyle;
-                    ctx.shadowBlur = 15;
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                }
-                
-                // 중앙 정보 패널
-                const panelWidth = 220;
-                const panelHeight = 100;
-                const panelX = canvas.width / 2 - panelWidth / 2;
-                const panelY = canvas.height / 2 - panelHeight / 2;
-                
-                // 패널 배경
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-                ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
-                ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(panelX, panelY, panelWidth, panelHeight);
-                
-                // 패널 텍스트
-                ctx.fillStyle = '#1565c0';
-                ctx.font = 'bold 22px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('🚀 실행 중', canvas.width / 2, panelY + 30);
-                
-                ctx.font = '16px Arial';
-                ctx.fillStyle = '#4caf50';
-                ctx.fillText(`⚡ ${Math.floor(this.frame * 0.6)} FPS`, canvas.width / 2, panelY + 55);
-                
-                ctx.font = '14px Arial';
-                ctx.fillStyle = '#666';
-                ctx.fillText(`⏱️ ${elapsed.toFixed(1)}초 경과`, canvas.width / 2, panelY + 80);
-                
-                this.frame++;
-                this.animationId = requestAnimationFrame(() => this.animate());
-            }
-            
-            stopExecution() {
-                this.isPlaying = false;
-                
-                if (this.animationId) {
-                    cancelAnimationFrame(this.animationId);
-                    this.animationId = null;
-                }
-                
-                // UI 복원
-                const playBtn = document.getElementById('playBtn');
-                playBtn.textContent = '▶️ 실행';
-                playBtn.classList.remove('playing');
-                
-                document.getElementById('projectStatus').textContent = '정지됨';
-                this.updateStatus('실행 정지됨');
-                
-                // 화면 복원
-                if (this.projectData) {
-                    this.drawWelcomeScreen();
-                }
-                
-                console.log('⏹️ 실행 정지');
-            }
-            
-            resetProject() {
-                this.stopExecution();
-                this.frame = 0;
-                
-                if (this.projectData) {
-                    this.drawWelcomeScreen();
-                    document.getElementById('projectStatus').textContent = '리셋됨';
-                    this.updateStatus('프로젝트 리셋 완료');
-                }
-                
-                console.log('🔄 프로젝트 리셋');
-            }
-            
-            togglePlay() {
-                if (!this.projectData) {
-                    alert('먼저 프로젝트를 로드해주세요.');
-                    return;
-                }
-                
-                if (this.isPlaying) {
-                    this.stopExecution();
-                } else {
-                    this.startExecution();
+                    // 자동 실행
+                    setTimeout(() => {
+                        if (Entry.engine) {
+                            Entry.engine.run();
+                        }
+                    }, 500);
+                    
+                    // UI 전환
+                    this.loadingEl.style.display = 'none';
+                    this.workspaceEl.style.display = 'block';
+                    
+                } catch (error) {
+                    throw new Error(`프로젝트 로드 실패: ${error.message}`);
                 }
             }
             
-            toggleFullscreen() {
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(err => {
-                        console.error('전체화면 실패:', err);
-                        alert('전체화면을 지원하지 않는 브라우저입니다.');
-                    });
-                } else {
-                    document.exitFullscreen();
+            // 메인 실행 함수
+            async run() {
+                try {
+                    // 1. 프로젝트 ID 추출
+                    this.projectId = this.extractProjectId();
+                    if (!this.projectId) {
+                        this.showError('올바른 프로젝트 ID를 입력해주세요.<br>사용법: /onlyrun/프로젝트ID');
+                        return;
+                    }
+                    
+                    // 2. Entry.js 초기화
+                    this.updateLoadingText('Entry.js 초기화 중...', '엔진을 준비하고 있습니다');
+                    await this.initEntry();
+                    
+                    // 3. 프로젝트 데이터 가져오기
+                    this.updateLoadingText('프로젝트 데이터 가져오는 중...', `프로젝트 ID: ${this.projectId}`);
+                    const projectData = await this.fetchProject(this.projectId);
+                    
+                    // 4. 프로젝트 로드 및 실행
+                    this.updateLoadingText('프로젝트 실행 중...', projectData.name || '제목 없음');
+                    await this.loadAndRunProject(projectData);
+                    
+                    console.log('🚀 OnlyRun 모드로 프로젝트가 성공적으로 로드되었습니다!');
+                    console.log('프로젝트:', projectData.name);
+                    console.log('제작자:', projectData.user?.nickname);
+                    
+                } catch (error) {
+                    console.error('OnlyRun 모드 실행 실패:', error);
+                    this.showError(`오류가 발생했습니다:<br>${error.message}<br><br>프로젝트 ID를 확인하거나 잠시 후 다시 시도해주세요.`);
                 }
             }
         }
         
-        // 전역 인스턴스
-        let app = null;
-        
-        // 전역 함수들 (HTML에서 호출)
-        function loadProject() {
-            if (app) app.loadProject();
-        }
-        
-        function loadDemo() {
-            document.getElementById('projectId').value = '67de8c0c24dc839ba6e16345';
-            loadProject();
-        }
-        
-        function togglePlay() {
-            if (app) app.togglePlay();
-        }
-        
-        function stopExecution() {
-            if (app) app.stopExecution();
-        }
-        
-        function resetProject() {
-            if (app) app.resetProject();
-        }
-        
-        function toggleFullscreen() {
-            if (app) app.toggleFullscreen();
-        }
-        
-        // 앱 초기화
+        // 페이지 로드 완료 후 실행
         window.addEventListener('DOMContentLoaded', () => {
-            app = new EntryOnlyRun();
+            const onlyRun = new OnlyRunMode();
+            onlyRun.run();
         });
         
-        // 오류 처리
-        window.addEventListener('error', (e) => {
-            console.warn('⚠️ 오류 발생:', e.error);
-        });
-        
-        // 언로드 시 정리
-        window.addEventListener('beforeunload', () => {
-            if (app && app.isPlaying) {
-                app.stopExecution();
+        // 키보드 단축키 (ESC로 전체화면 토글 등)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    document.documentElement.requestFullscreen();
+                }
             }
         });
-        
-        console.log('🚀 Entry.js OnlyRun v2.0 - 통합 최종 버전 로드 완료!');
-        console.log('📋 지원 기능:');
-        console.log('  ✅ 극강 속도 모드');
-        console.log('  ✅ 실제 API 연동 + 샘플 데이터 폴백');
-        console.log('  ✅ 다양한 URL 형식 지원');
-        console.log('  ✅ 키보드 단축키');
-        console.log('  ✅ 전체화면 모드');
-        console.log('  ✅ 반응형 디자인');
     </script>
 </body>
 </html> 
