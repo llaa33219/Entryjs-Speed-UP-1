@@ -29,28 +29,13 @@ module.exports = {
             inject: false,
             hash: true,
         }),
-        // OnlyRun 모드를 위한 HTML 플러그인
-        new HtmlWebpackPlugin({
-            template: path.resolve('onlyrun.html'),
-            title: 'Entry OnlyRun Mode',
-            filename: path.resolve('dist', 'onlyrun.html'),
-            inject: false,
-            hash: true,
-        }),
     ],
     devServer: {
         static: {
             directory: path.join(__dirname, '../'),
         },
         port: devServerPort,
-        historyApiFallback: {
-            rewrites: [
-                // onlyrun 라우팅: /onlyrun/프로젝트ID -> onlyrun.html
-                { from: /^\/onlyrun\/[a-zA-Z0-9]+$/, to: '/onlyrun.html' },
-                // 기본 라우팅
-                { from: /./, to: '/index.html' }
-            ]
-        },
+        historyApiFallback: true,
         devMiddleware: {
             publicPath: '/',
         },
